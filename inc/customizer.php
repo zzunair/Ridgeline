@@ -7,6 +7,62 @@
  */
 
 /**
+ * Google fonts offered in Typography. The value is the Google Fonts family query.
+ */
+function ridgeline_font_catalog() {
+	return array(
+		'Barlow Condensed'  => 'Barlow+Condensed:wght@600;700',
+		'Barlow'            => 'Barlow:wght@400;500;600;700',
+		'Oswald'            => 'Oswald:wght@400;500;600;700',
+		'Inter'             => 'Inter:wght@400;500;600;700',
+		'Montserrat'        => 'Montserrat:wght@400;500;600;700',
+		'Raleway'           => 'Raleway:wght@400;500;600;700',
+		'DM Sans'           => 'DM+Sans:wght@400;500;600;700',
+		'Plus Jakarta Sans' => 'Plus+Jakarta+Sans:wght@400;500;600;700',
+		'Outfit'            => 'Outfit:wght@400;500;600;700',
+		'Roboto'            => 'Roboto:wght@400;500;700',
+		'Lora'              => 'Lora:wght@400;500;600;700',
+		'Playfair Display'  => 'Playfair+Display:wght@400;600;700',
+	);
+}
+
+/**
+ * Select choices for the font controls.
+ */
+function ridgeline_font_choices() {
+	$choices = array();
+	foreach ( array_keys( ridgeline_font_catalog() ) as $name ) {
+		$choices[ $name ] = $name;
+	}
+	return $choices;
+}
+
+/**
+ * Saved font, restricted to the catalog.
+ *
+ * @param string $key Theme mod key without the ridgeline_ prefix.
+ */
+function ridgeline_font_family( $key ) {
+	$catalog = ridgeline_font_catalog();
+	$name    = (string) ridgeline_mod( $key );
+	if ( isset( $catalog[ $name ] ) ) {
+		return $name;
+	}
+	return 'font_heading' === $key ? 'Barlow Condensed' : 'Barlow';
+}
+
+/**
+ * CSS font stack for a saved font.
+ *
+ * @param string $key     Theme mod key without the ridgeline_ prefix.
+ * @param bool   $heading Whether this is the heading stack.
+ */
+function ridgeline_font_stack( $key, $heading = false ) {
+	$name = '"' . ridgeline_font_family( $key ) . '"';
+	return $heading ? $name . ', "Arial Narrow", Arial, sans-serif' : $name . ', "Segoe UI", Arial, sans-serif';
+}
+
+/**
  * Setting registry: section id => title, panel, fields.
  */
 function ridgeline_settings() {
@@ -73,6 +129,21 @@ function ridgeline_settings() {
 				'color_brand_l' => array( 'label' => 'Brand light tint', 'type' => 'color', 'default' => '#E4EFE8' ),
 				'color_accent'  => array( 'label' => 'Accent', 'type' => 'color', 'default' => '#F2B100' ),
 				'color_ink'     => array( 'label' => 'Ink (text and dark surfaces)', 'type' => 'color', 'default' => '#14201A' ),
+			),
+		),
+		'typography'  => array(
+			'title'       => 'Typography',
+			'panel'       => 'ridgeline_global',
+			'description' => 'Heading and body fonts, plus the sizes used by page titles, section headings and body text.',
+			'fields'      => array(
+				'font_heading'       => array( 'label' => 'Heading font', 'type' => 'select', 'default' => 'Barlow Condensed', 'choices' => ridgeline_font_choices() ),
+				'font_body'          => array( 'label' => 'Body font', 'type' => 'select', 'default' => 'Barlow', 'choices' => ridgeline_font_choices() ),
+				'font_size_base'     => array( 'label' => 'Base font size (px)', 'type' => 'number', 'default' => 17, 'input_attrs' => array( 'min' => 13, 'max' => 22, 'step' => 1 ) ),
+				'font_size_h1'       => array( 'label' => 'H1 size (px)', 'type' => 'number', 'default' => 56, 'input_attrs' => array( 'min' => 24, 'max' => 96, 'step' => 2 ) ),
+				'font_size_h2'       => array( 'label' => 'H2 size (px)', 'type' => 'number', 'default' => 40, 'input_attrs' => array( 'min' => 20, 'max' => 72, 'step' => 2 ) ),
+				'font_size_h3'       => array( 'label' => 'H3 size (px)', 'type' => 'number', 'default' => 24, 'input_attrs' => array( 'min' => 16, 'max' => 48, 'step' => 1 ) ),
+				'font_size_h4'       => array( 'label' => 'H4 size (px)', 'type' => 'number', 'default' => 22, 'input_attrs' => array( 'min' => 14, 'max' => 36, 'step' => 1 ) ),
+				'section_title_size' => array( 'label' => 'Section title size (px)', 'type' => 'number', 'default' => 40, 'input_attrs' => array( 'min' => 20, 'max' => 72, 'step' => 2 ) ),
 			),
 		),
 		'footer'       => array(
@@ -482,6 +553,9 @@ function ridgeline_customize_register( $wp_customize ) {
 				$args['type'] = $type;
 				if ( 'select' === $type ) {
 					$args['choices'] = $field['choices'];
+				}
+				if ( ! empty( $field['input_attrs'] ) ) {
+					$args['input_attrs'] = $field['input_attrs'];
 				}
 				$wp_customize->add_control( $setting_id, $args );
 			}

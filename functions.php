@@ -43,7 +43,17 @@ function ridgeline_content_width() {
 add_action( 'after_setup_theme', 'ridgeline_content_width', 0 );
 
 function ridgeline_fonts_url() {
-	return 'https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600;700&display=swap';
+	$catalog  = ridgeline_font_catalog();
+	$families = array();
+	foreach ( array( ridgeline_font_family( 'font_heading' ), ridgeline_font_family( 'font_body' ) ) as $name ) {
+		if ( isset( $catalog[ $name ] ) ) {
+			$families[ $name ] = $catalog[ $name ];
+		}
+	}
+	if ( ! $families ) {
+		return '';
+	}
+	return 'https://fonts.googleapis.com/css2?family=' . implode( '&family=', $families ) . '&display=swap';
 }
 
 function ridgeline_resource_hints( $urls, $relation ) {
@@ -61,9 +71,12 @@ function ridgeline_asset_version( $relative ) {
 }
 
 function ridgeline_scripts() {
-	wp_enqueue_style( 'ridgeline-fonts', ridgeline_fonts_url(), array(), null ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
+	$fonts = ridgeline_fonts_url();
+	if ( $fonts ) {
+		wp_enqueue_style( 'ridgeline-fonts', $fonts, array(), null ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
+	}
 	wp_enqueue_style( 'ridgeline-style', get_stylesheet_uri(), array(), ridgeline_asset_version( 'style.css' ) );
-	wp_add_inline_style( 'ridgeline-style', ridgeline_color_css() );
+	wp_add_inline_style( 'ridgeline-style', ridgeline_token_css() );
 
 	wp_enqueue_script( 'ridgeline', get_template_directory_uri() . '/assets/js/ridgeline.js', array(), ridgeline_asset_version( 'assets/js/ridgeline.js' ), true );
 	wp_localize_script(
@@ -85,24 +98,41 @@ function ridgeline_scripts() {
 add_action( 'wp_enqueue_scripts', 'ridgeline_scripts' );
 
 /**
- * Customizer brand colors as CSS variables.
+ * Customizer brand colors and typography as CSS variables.
  */
-function ridgeline_color_css() {
-	$vars = array(
+function ridgeline_token_css() {
+	$css  = '--f-head:' . ridgeline_font_stack( 'font_heading', true ) . ';';
+	$css .= '--f-body:' . ridgeline_font_stack( 'font_body', false ) . ';';
+
+	$colors = array(
 		'--brand'   => 'color_brand',
 		'--brand-d' => 'color_brand_d',
 		'--brand-l' => 'color_brand_l',
 		'--accent'  => 'color_accent',
 		'--ink'     => 'color_ink',
 	);
-	$css = '';
-	foreach ( $vars as $var => $key ) {
+	foreach ( $colors as $var => $key ) {
 		$value = sanitize_hex_color( ridgeline_mod( $key ) );
 		if ( $value ) {
 			$css .= $var . ':' . $value . ';';
 		}
 	}
-	return $css ? ':root{' . $css . '}' : '';
+
+	$sizes = array(
+		'--fs-base'    => array( 'font_size_base', 13, 22 ),
+		'--fs-h1'      => array( 'font_size_h1', 24, 96 ),
+		'--fs-h2'      => array( 'font_size_h2', 20, 72 ),
+		'--fs-h3'      => array( 'font_size_h3', 16, 48 ),
+		'--fs-h4'      => array( 'font_size_h4', 14, 36 ),
+		'--fs-section' => array( 'section_title_size', 20, 72 ),
+	);
+	foreach ( $sizes as $var => $spec ) {
+		$value = absint( ridgeline_mod( $spec[0] ) );
+		$value = max( $spec[1], min( $spec[2], $value ? $value : $spec[1] ) );
+		$css  .= $var . ':' . $value . 'px;';
+	}
+
+	return ':root{' . $css . '}';
 }
 
 /**

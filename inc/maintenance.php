@@ -118,16 +118,19 @@ function ridgeline_render_maintenance_page() {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title><?php echo esc_html( get_bloginfo( 'name' ) ); ?> — Maintenance</title>
+<?php if ( ridgeline_fonts_url() ) : ?>
+<link rel="stylesheet" href="<?php echo esc_url( ridgeline_fonts_url() ); ?>">
+<?php endif; ?>
 <style>
-body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px 20px;background:#143D28;color:#fff;font-family:Barlow,Segoe UI,Arial,sans-serif;text-align:center}
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px 20px;background:#143D28;color:#fff;font-family:<?php echo ridgeline_font_stack( 'font_body' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;font-size:var(--fs-base,17px);text-align:center}
 main{max-width:600px;border-top:5px solid #F2B100;background:#1E5A3C;padding:40px 28px}
-h1{font-family:"Barlow Condensed",Barlow,Arial,sans-serif;font-weight:700;text-transform:uppercase;font-size:2.4rem;line-height:1.05;margin:0 0 12px}
-p{margin:0;color:#E4EFE8;font-size:1.05rem;line-height:1.6}
+h1{font-family:<?php echo ridgeline_font_stack( 'font_heading', true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;font-weight:700;text-transform:uppercase;font-size:var(--fs-h1,2.4rem);line-height:1.05;margin:0 0 12px}
+p{margin:0;color:#E4EFE8;font-size:var(--fs-copy,1.05rem);line-height:1.6}
 a{color:#F2B100;font-weight:700}
 .timer{display:flex;gap:12px;justify-content:center;margin-top:28px;flex-wrap:wrap}
 .timer div{min-width:72px;background:#14201A;border-top:3px solid #F2B100;padding:12px 8px}
-.timer strong{display:block;font-family:"Barlow Condensed",Barlow,Arial,sans-serif;font-size:2rem;color:#fff}
-.timer span{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:#E4EFE8}
+.timer strong{display:block;font-family:<?php echo ridgeline_font_stack( 'font_heading', true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;font-size:var(--fs-h2,2rem);color:#fff}
+.timer span{font-size:var(--fs-eyebrow,.72rem);letter-spacing:.08em;text-transform:uppercase;color:#E4EFE8}
 .call{margin-top:24px}
 </style>
 </head>
